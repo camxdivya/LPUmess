@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Mess Coupon</title>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+
+<style>
+  * { box-sizing: border-box; }
+
+  ion-content {
+    --background: #ffffff;
+    --overflow: hidden; 
+  }
+
+  ion-toolbar {
+    --background: #323232;
+    --color: #ffffff;
+    padding-top: env(safe-area-inset-top, 0px); 
+    height: calc(env(safe-area-inset-top, 0px) + 44px);
+  }
+
+  .header-grid {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px;
+    font-family: Arial, sans-serif;
+  }
+
+  .header-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  ion-back-button {
+    --color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    margin: 0;
+  }
+
+  .header-center {
+    flex: 2;
+    text-align: center;
+    font-weight: 900;
+    font-size: 16px;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .header-right {
+    flex: 1;
+    text-align: right;
+    font-size: 14px;
+    color: #ffffff;
+    white-space: nowrap;
+    padding-right: 5px;
+  }
+
+  .card-container {
+    max-width: 520px;
+    margin: 12px auto 0;
+    padding: 0 10px;
+  }
+
+  .profile-card {
+    padding: 25px 15px 20px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #fe8573 10%, #ffd57a 100%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    color: #222;
+  }
+
+  .profile-pic {
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+    display: block;
+    object-fit: cover;
+    margin: 0 auto 10px;
+  }
+
+  .name {
+    text-align: center;
+    font-weight: 900;
+    font-size: 17px;
+    margin-bottom: 15px;
+  }
+
+  .info-block {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .info-block strong {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 700;
+  }
+
+  .below-profile-section {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 5px 30px 25px;   
+    background: #ffffff;
+    margin: 0 10px 70px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border-radius: 0 0 12px 12px;
+  }
+
+  .below-profile-section p {
+    text-align: center;
+    font-weight: 900;
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: #000;
+  }
+
+  .rate-button {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: 900;
+    border: 2.5px solid #a10404;
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: 16px;
+    background: white;
+    cursor: pointer;
+    display: block;        
+    margin: 3px auto;      
+    width: fit-content;    
+  }
+  
+  .rate-button span {
+    color: goldenrod;
+    font-size: 15px;
+    margin-right: 2px;
+  }
+
+  .meal-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 20px;    
+  }
+
+  .meal-button {
+    background: linear-gradient(90deg, #fe8573 10%, #ffd57a 100%);
+    padding: 19px 0;
+    text-align: center;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 15px;
+    color: #3c1300;
+    box-shadow: 0px 6px 10px rgba(108,49,6,0.4);
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: white;
+    padding: 25px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    border-radius: 12px;
+  }
+
+  .modal h2 {
+    font-weight: 900;
+    text-align: center;
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #fc6f65;
+    margin-top: 10px;
+    font-size: 17px;
+  }
+
+  .color-preview {
+    margin-top: 15px;
+    height: 60px;
+    border: 2px solid #3c1300;
+    border-radius: 10px;
+  }
+
+  .modal-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .btn {
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-submit {
+    background: linear-gradient(90deg,#fc6f65,#febb68);
+    color: #3c1300;
+  }
+
+  .btn-cancel {
+    background: #b94a43;
+    color: white;
+  }
+
+  #rateusSheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 80%;
+    background: #323232; 
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.35);
+    transform: translateY(100%);
+    z-index: 999999;
+    overflow: hidden;
+  }
+
+  .slider-drag-handle {
+    width: 42px;
+    height: 5px;
+    background: #ccc;
+    border-radius: 3px;
+    margin: 10px auto 8px;
+  }
+
+  .slider-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #323232;
+    color: #ffffff;
+    padding: 0 20px 12px;
+    font-family: Arial, sans-serif;
+  }
+
+  .slider-title {
+    font-weight: 900;
+    font-size: 16px;
+    margin: 0 auto 0 calc(50% - 45px); 
+  }
+
+  .slider-close-btn {
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  #rateusFrame {
+    width: 100%;
+    height: calc(100% - 55px);
+    border: none;
+    display: block;
+    background: #ffffff; 
+  }
+</style>
+</head>
+
+<body>
+
+<ion-app>
+  <ion-header class="ion-no-border">
+    <ion-toolbar>
+      <div class="header-grid">
+        <div class="header-left">
+          <ion-back-button default-href="#" onclick="handleAppClose(); return false;"></ion-back-button>
+        </div>
+        <div class="header-center">Mess Coupon</div>
+        <div class="header-right">Meal History</div>
+      </div>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content scroll-y="false">
+    
+    <div class="card-container">
+      <div class="profile-card">
+        <img src="profile.png" class="profile-pic" />
+        <div class="name">Rishav Kumar</div>
+
+        <div class="info-block">
+          <strong>Father's Name</strong>
+          Munna Singh (9631029570)
+        </div>
+
+        <div class="info-block">
+          <strong>Mother's Name</strong>
+          Rekha Devi (+91-7903028900)
+        </div>
+
+        <div class="info-block">
+          <strong>Program Name</strong>
+          P132:B.Tech. (Computer Science and Engineering) (2024)
+        </div>
+
+        <div class="info-block">
+          <strong>Hostel</strong>
+          Boys Hostel-01- A1025-Bed D (Standard Air Cooled 4 Seater)
+        </div>
+      </div>
+    </div>
+
+    <section class="below-profile-section">
+      <p>Tap on the meal name to scan and avail food.</p>
+
+      <div class="rate-button" onclick="openRateUs()" tabindex="0">
+        <span>★</span> RATE US
+      </div>
+
+      <div class="meal-buttons">
+        <div class="meal-button" data-meal="BreakFast">BreakFast →</div>
+        <div class="meal-button" data-meal="Dinner">Dinner →</div>
+        <div class="meal-button" data-meal="Lunch">Lunch →</div>
+        <div class="meal-button" data-meal="Tea">Tea →</div>
+      </div>
+    </section>
+
+  </ion-content>
+</ion-app>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Enter Colour Code</h2>
+    <input type="text" id="colorCodeInput" placeholder="#fc6f65" />
+    
+    <select id="messSelect" style="
+      width:100%;
+      padding:12px;
+      margin-top:12px;
+      font-size:16px;
+      font-weight:900;
+      border-radius:8px;
+      border:2px solid #fc6f65;
+    ">
+      <option value="Mess-Centre-01">Mess-Centre-01</option>
+      <option value="Mess BH-3" selected>Mess BH-3</option>
+      <option value="CCM-BH-02">CCM-BH-02</option>
+    </select>
+
+    <div class="color-preview" id="colorPreview"></div>
+
+    <div class="modal-buttons">
+      <button class="btn btn-submit" id="btnSubmit">Submit</button>
+      <button class="btn btn-cancel" id="btnCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="rateusSheet">
+  <div class="slider-drag-handle"></div>
+  <div class="slider-header-bar">
+    <div class="slider-title">Feedback</div>
+    <div class="slider-close-btn" onclick="closeRateUs()">×</div>
+  </div>
+  <iframe id="rateusFrame"></iframe>
+</div>
+
+<script>
+const mealButtons = document.querySelectorAll('.meal-button');
+const modalOverlay = document.getElementById('modalOverlay');
+const colorInput = document.getElementById('colorCodeInput');
+const colorPreview = document.getElementById('colorPreview');
+const messSelect = document.getElementById('messSelect');
+const btnCancel = document.getElementById('btnCancel');
+const btnSubmit = document.getElementById('btnSubmit');
+
+let activeMeal = null;
+
+// Clean single click exit logic
+function handleAppClose() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.close();
+  }
+}
+
+/* ==========================================
+   SYSTEM INTERCEPTION (Single Click Direct Back)
+========================================== */
+window.history.pushState({page: 1}, "", "");
+window.addEventListener("popstate", function(event) {
+  // Direct programmatic routing call to remove history block looping issues
+  handleAppClose();
+});
+
+function isValidColor(code) {
+  const s = new Option().style;
+  s.color = code;
+  return s.color !== "";
+}
+
+function openModal(meal) {
+  activeMeal = meal;
+  colorInput.value = '';
+  colorPreview.style.background = 'transparent';
+  modalOverlay.classList.add('active');
+}
+
+/* ==========================================
+   ⭐ 6-SECOND HOLD TO OPEN POPUP ENGINE
+========================================== */
+
+let mealHoldTimer = null;
+let longPressTriggered = false;
+
+function startMealHold(mealName) {
+
+  longPressTriggered = false;
+
+  if (mealHoldTimer) {
+    clearTimeout(mealHoldTimer);
+  }
+
+  mealHoldTimer = setTimeout(() => {
+
+    longPressTriggered = true;
+
+    openModal(mealName);
+
+    mealHoldTimer = null;
+
+  }, 6000);
+}
+
+function cancelMealHold() {
+
+  if (mealHoldTimer) {
+    clearTimeout(mealHoldTimer);
+    mealHoldTimer = null;
+  }
+}
+
+
+/* ==========================================
+   ⭐ MEAL BUTTON CLICK + LONG PRESS
+========================================== */
+
+mealButtons.forEach(btn => {
+
+  const targetMeal = btn.dataset.meal;
+
+  // MOBILE TOUCH
+  btn.addEventListener('touchstart', () => {
+    startMealHold(targetMeal);
+  }, { passive: true });
+
+  btn.addEventListener('touchend', () => {
+
+    cancelMealHold();
+
+    // Agar 6 sec long press trigger nahi hua,
+    // to normal single click par sfake.html open hoga.
+    if (!longPressTriggered) {
+      window.location.href = "sfake.html";
+    }
+
+  }, { passive: true });
+
+  btn.addEventListener('touchcancel', () => {
+    cancelMealHold();
+  }, { passive: true });
+
+
+  // DESKTOP / MOUSE
+  btn.addEventListener('mousedown', () => {
+    startMealHold(targetMeal);
+  });
+
+  btn.addEventListener('mouseup', () => {
+
+    cancelMealHold();
+
+    if (!longPressTriggered) {
+      window.location.href = "sfake.html";
+    }
+
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    cancelMealHold();
+  });
+
+});
+
+
+btnCancel.onclick = () => modalOverlay.classList.remove("active");
+
+colorInput.oninput = () => {
+  const v = colorInput.value.trim();
+  colorPreview.style.background = isValidColor(v) ? v : "transparent";
+};
+
+btnSubmit.onclick = () => {
+  const code = colorInput.value.trim();
+  const mess = messSelect.value;
+
+  if (!isValidColor(code)) {
+    alert("Please enter valid color!");
+    return;
+  }
+
+  window.location.href = 
+    `scanner.html?meal=${activeMeal}&color=${encodeURIComponent(code)}&mess=${encodeURIComponent(mess)}`;
+};
+
+
+/* ==========================================
+   RATE US SLIDER (Fully Fixed Custom Height Dragging Engine)
+========================================== */
+
+const sheet = document.getElementById("rateusSheet");
+let isDragging = false;
+let startY = 0;
+let currentOffsetY = 0; 
+
+function openRateUs() {
+  const frame = document.getElementById("rateusFrame");
+  
+  sheet.style.transition = "transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)";
+  frame.src = "rateus.html";
+  
+  currentOffsetY = 0;
+  sheet.style.transform = "translateY(0px)";
+}
+
+function closeRateUs() {
+  sheet.style.transition = "transform 0.3s ease-in";
+  sheet.style.transform = "translateY(100%)";
+  currentOffsetY = 0;
+}
+
+
+/* TOUCH TRACKING EVENTS */
+
+sheet.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  sheet.style.transition = "none"; 
+  startY = e.touches[0].clientY;
+}, { passive: true });
+
+sheet.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+
+  const moveY = e.touches[0].clientY;
+  const deltaY = moveY - startY;
+
+  const targetedY = currentOffsetY + deltaY;
+  
+  if (targetedY > -20) { 
+    sheet.style.transform = `translateY(${targetedY}px)`;
+  }
+}, { passive: true });
+
+sheet.addEventListener("touchend", (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const style = window.getComputedStyle(sheet);
+  const matrix = new WebKitCSSMatrix(style.transform);
+  const finalDroppedY = matrix.m42; 
+
+  if (finalDroppedY > window.innerHeight * 0.35) {
+    closeRateUs();
+  } else {
+    sheet.style.transition = "transform 0.2s ease-out";
+    sheet.style.transform = `translateY(${finalDroppedY}px)`;
+    currentOffsetY = finalDroppedY; 
+  }
+});
+
+window.addEventListener("message", (event) => {
+  if (event.data === "close-slider") {
+    closeRateUs();
+  }
+});
+
+</script>
+
+</body>
+</html>

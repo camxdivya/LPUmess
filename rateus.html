@@ -1,0 +1,339 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> 
+<title>Feedback</title> 
+<style> 
+ /* DISABLE COPY + SELECTION */ 
+ *{ 
+  -webkit-user-select:none; 
+  user-select:none; 
+  -webkit-touch-callout:none; 
+  -webkit-tap-highlight-color:transparent; 
+ } 
+ body { 
+  margin:0; 
+  font-family:'Segoe UI',sans-serif; 
+  background:#fff; 
+  overflow-x:hidden; 
+ } 
+ 
+ /* CONTENT AREA ADJUSTMENT */ 
+ .container { 
+  padding: 15px 22px; 
+ } 
+ h1 { 
+  font-weight:900; 
+  font-size:26px; 
+  margin:0 0 8px 0; 
+  text-align:center; 
+ } 
+ .subtitle { 
+  text-align:center; 
+  font-weight:900; 
+  font-size:15px; 
+  margin-bottom:24px; 
+ } 
+ /* STARS */ 
+ .star-container { 
+  text-align:center; 
+  margin-bottom:32px; 
+ } 
+ .star { 
+  font-size:30px; 
+  margin:0 4px; 
+  cursor:pointer; 
+  color:#ffffff; 
+  -webkit-text-stroke:2px #FFC107; 
+  transition:0.2s; 
+ } 
+ .star.active { 
+  color:#FFC107; 
+  transform:scale(1.12); 
+ } 
+ /* MEAL BUTTONS */ 
+ .meal-type-label { 
+  font-weight:900; 
+  font-size:17px; 
+  margin-bottom:10px; 
+ } 
+ .meal-types { 
+  display:flex; 
+  flex-wrap:wrap; 
+  width:100%; 
+  justify-content:flex-start; 
+  margin-left:5px; 
+  padding-top:20px; 
+ } 
+ .meal-btn { 
+  width:22%; 
+  height:45px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  margin:0 3% 20px auto; 
+  border:2px solid gray; 
+  border-radius:12px; 
+  font-size:14px; 
+  font-weight:600; 
+  background:white; 
+  cursor:pointer; 
+  transition:all 0.3s ease-in-out; 
+ } 
+ .meal-btn:hover { 
+  transform:scale(1.05); 
+ } 
+ .meal-btn.selected { 
+  border:3px solid #f48121; 
+  transform:scale(1.1); 
+  background-color:#ffe6e6; 
+  box-shadow:0 4px 12px #ff00004d; 
+ } 
+ /* SECTION TITLES */ 
+ .section-title { 
+  font-weight:900; 
+  font-size:18px; 
+  color:#3C3C3C; 
+  text-align:center; 
+  margin:30px 0 12px 0; 
+  text-decoration:underline; 
+ } 
+ /* LISTS */ 
+ .new-list, .feedback-list { 
+  list-style:none; 
+  padding:0; 
+  margin:0 0 18px 0; 
+ } 
+ .new-list li, .feedback-list li { 
+  display:flex; 
+  justify-content:space-between; 
+  padding:14px 4px; 
+  font-weight:900; 
+  border-bottom:1px solid #dcdcdc; 
+ } 
+ /* CHECKBOX */ 
+ .custom-checkbox { 
+  width:16px; 
+  height:16px; 
+  border:2px solid #CFCFCF; 
+  border-radius:2px; 
+  cursor:pointer; 
+  position:relative; 
+ } 
+ .custom-checkbox.checked { 
+  background:#FB8C00; 
+  border-color:#FB8C00; 
+ } 
+ .custom-checkbox.checked::after { 
+  content:""; 
+  position:absolute; 
+  width:7px; 
+  height:4px; 
+  top:3px; 
+  left:3px; 
+  border-left:2px solid #fff; 
+  border-bottom:2px solid #fff; 
+  transform:rotate(-45deg); 
+ } 
+ /* REMARKS */ 
+ .remarks-wrapper { 
+  margin:10px 30px 0 10px; 
+ } 
+ .remarks-label { 
+  font-weight:900; 
+  font-size:16px; 
+  text-decoration:underline; 
+ } 
+ .remarks-input { 
+  width:100%; 
+  border:2px solid #3C3C3C; 
+  height:60px; /* Thoda readable space dene ke liye textarea height fix ki */
+  padding:8px; 
+  font-size:16px; 
+  resize: none;
+ } 
+ /* SUBMIT */ 
+ .submit-btn { 
+  width:40%; 
+  height:2.5em; 
+  background:linear-gradient(90deg,#fe8573 10%,#ffd57a 100%); 
+  border-radius:5px; 
+  font-weight:900; 
+  font-size:1.1em; 
+  color:#323232; 
+  border:none; 
+  display:block; 
+  margin:30px auto 20px auto; 
+  cursor:pointer; 
+  box-shadow:0 8px 6px -6px #000; 
+ } 
+ /* POPUP */ 
+ .popup-overlay { 
+  position:fixed; 
+  inset:0; 
+  background:rgba(0,0,0,0.45); 
+  display:none; 
+  z-index: 100;
+ } 
+ .popup-box { 
+  position:fixed; 
+  top:50%; 
+  left:50%; 
+  width:70%; 
+  max-width:240px; 
+  padding:18px; 
+  transform:translate(-50%,-50%) scale(0.8); 
+  background:#fff; 
+  border-radius:18px; 
+  text-align:center; 
+  font-weight:900; 
+  display:none; 
+  z-index: 101;
+ } 
+ .popup-box.show { 
+  transform:translate(-50%,-50%) scale(1); 
+ } 
+ .popup-ok { 
+  width:100%; 
+  padding:10px 0; 
+  font-size:16px; 
+  font-weight:900; 
+  color:#FB8C00; 
+  background:transparent; 
+  border:none; 
+  border-top:1px solid #e5e5e5; 
+ } 
+</style> 
+</head> 
+<body>
+
+ <div class="container"> 
+  <h1>Mess Feedback</h1> 
+  <div class="subtitle">Tell us how we did!</div> 
+  <div class="star-container"> 
+   <span class="star">★</span> 
+   <span class="star">★</span> 
+   <span class="star">★</span> 
+   <span class="star">★</span> 
+   <span class="star">★</span> 
+  </div> 
+  
+  <div id="contentArea" style="display:none;"> 
+   <div class="meal-type-label">Tap to select meal type</div> 
+   <div class="meal-types"> 
+    <button class="meal-btn">Breakfast</button> 
+    <button class="meal-btn">Lunch</button> 
+    <button class="meal-btn">Tea</button> 
+    <button class="meal-btn">Dinner</button> 
+   </div> 
+   
+   <div id="oldSection" style="display:none"> 
+    <div class="section-title">Feedback</div> 
+    <ul class="feedback-list"> 
+     <li><label>Overall excellent service</label><div class="custom-checkbox"></div></li> 
+     <li><label>On-time serving</label><div class="custom-checkbox"></div></li> 
+     <li><label>Sufficient quantity</label><div class="custom-checkbox"></div></li> 
+     <li><label>Staff was polite & helpful</label><div class="custom-checkbox"></div></li> 
+     <li><label>Neat & hygienic</label><div class="custom-checkbox"></div></li> 
+     <li><label>Food was tasty</label><div class="custom-checkbox"></div></li> 
+    </ul> 
+   </div> 
+   
+   <div id="newSection" style="display:none"> 
+    <div class="section-title">Service / Staff</div> 
+    <ul class="new-list"> 
+     <li><label>Food served late</label><div class="custom-checkbox"></div></li> 
+     <li><label>Staff not polite</label><div class="custom-checkbox"></div></li> 
+    </ul> 
+    <div class="section-title">Quantity</div> 
+    <ul class="new-list"> 
+     <li><label>Refills not available</label><div class="custom-checkbox"></div></li> 
+     <li><label>Less food</label><div class="custom-checkbox"></div></li> 
+    </ul> 
+    <div class="section-title">Hygiene</div> 
+    <ul class="new-list"> 
+     <li><label>Staff not hygienic</label><div class="custom-checkbox"></div></li> 
+     <li><label>Utensils dirty</label><div class="custom-checkbox"></div></li> 
+     <li><label>Mess not clean</label><div class="custom-checkbox"></div></li> 
+    </ul> 
+    <div class="section-title">Food Quality</div> 
+    <ul class="new-list"> 
+     <li><label>Tasteless</label><div class="custom-checkbox"></div></li> 
+     <li><label>Not fresh</label><div class="custom-checkbox"></div></li> 
+     <li><label>Undercooked / overcooked</label><div class="custom-checkbox"></div></li> 
+     <li><label>Too oily / greasy</label><div class="custom-checkbox"></div></li> 
+    </ul> 
+    <div class="remarks-wrapper"> 
+     <label class="remarks-label">Remarks (If Any)</label> 
+     <textarea class="remarks-input"></textarea> 
+    </div> 
+   </div> 
+   <button class="submit-btn" id="submitBtn">Submit</button> 
+  </div> 
+ </div> 
+ 
+ <div class="popup-overlay" id="popupOverlay"></div> 
+ <div class="popup-box" id="popupBox"> 
+  <h2>Message</h2> 
+  <p>Thank you for your feedback! Your input helps improve the mess service.</p> 
+  <button class="popup-ok" id="popupOkBtn">OK</button> 
+ </div> 
+ 
+ <script> 
+  /* BLOCK COPY + LONG PRESS */ 
+  document.addEventListener("contextmenu",e=>e.preventDefault()); 
+  document.addEventListener("selectstart",e=>e.preventDefault()); 
+  
+  const stars=document.querySelectorAll(".star"); 
+  const oldSection=document.getElementById("oldSection"); 
+  const newSection=document.getElementById("newSection"); 
+  const contentArea=document.getElementById("contentArea"); 
+  
+  stars.forEach((star,index)=>{ 
+   star.onclick=()=>{ 
+    contentArea.style.display="block"; 
+    stars.forEach((s,i)=>s.classList.toggle("active",i<=index)); 
+    const rating=index+1; 
+    if(rating===5){ 
+     oldSection.style.display="block"; 
+     newSection.style.display="none"; 
+    } else{ 
+     oldSection.style.display="none"; 
+     newSection.style.display="block"; 
+    } 
+   }; 
+  }); 
+  
+  document.querySelectorAll(".meal-btn").forEach(btn=>{ 
+   btn.onclick=()=>{ 
+    document.querySelectorAll(".meal-btn").forEach(b=>b.classList.remove("selected")); 
+    btn.classList.add("selected"); 
+   }; 
+  }); 
+  
+  document.querySelectorAll(".custom-checkbox").forEach(box=>{ 
+   box.onclick=()=>box.classList.toggle("checked"); 
+  }); 
+  
+  const overlay=document.getElementById("popupOverlay"); 
+  const popup=document.getElementById("popupBox"); 
+  
+  document.getElementById("submitBtn").onclick=()=>{ 
+   overlay.style.display="block"; 
+   popup.style.display="block"; 
+   setTimeout(()=>popup.classList.add("show"),10); 
+  }; 
+  
+  document.getElementById("popupOkBtn").onclick=()=>{ 
+   popup.classList.remove("show"); 
+   setTimeout(()=>{ 
+    overlay.style.display="none"; 
+    popup.style.display="none"; 
+    // Communicates with mess.html parent script context to trigger structural view closure
+    window.parent.postMessage("close-slider", "*");
+   },250); 
+  }; 
+ </script> 
+</body> 
+</html>

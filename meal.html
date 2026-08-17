@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Mess Pass</title>
+
+<script src="qrcode.js"></script>
+
+<style>
+/* ============================
+   ⭐ CUSTOM VARIABLES
+============================= */
+:root {
+  --card-top-gap: 95px; 
+  --timer-box-width: 48px;
+  --timer-box-height: 40px;
+  --timer-text-size: 22px;
+  --timer-top: -16px; 
+  --timer-right: -12px;
+  --datetime-gap: 55px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= TOP TRAY & BAR ================= */
+.top-dark-tray {
+  position: fixed;
+  top: 0; left: 0; height: 20px; width: 100%;
+  background: #222222; z-index: 30;
+}
+
+.top-bar {
+  position: fixed;
+  top: 20px; left: 0; width: 100%;
+  background: #323232; color: white;
+  font-weight: bold; font-size: 15px; height: 48px;
+  display: flex; align-items: center; justify-content: center; z-index: 25;
+}
+
+.top-bar .handle {
+  position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+  width: 55px; height: 5px; background: #aaa; border-radius: 3px;
+}
+
+.top-bar .close { position: absolute; right: 15px; font-size: 22px; cursor: pointer; }
+
+/* ================= CARD ================= */
+.card {
+  width: calc(100vw - 20px);
+  max-width: 400px;
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1.8px solid #B2B2B2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.40);
+  margin: var(--card-top-gap) 10px 50px 10px;
+  position: relative; 
+}
+
+/* ================= TIMER ================= */
+#timer {
+  position: absolute; 
+  top: var(--timer-top);      
+  right: var(--timer-right); 
+  width: var(--timer-box-width);
+  height: var(--timer-box-height);
+  background: #A8A8A8;
+  border-radius: 18px;
+  color: black;
+  font-weight: 900;
+  font-size: var(--timer-text-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 4px white, 0 0 8px white;
+  z-index: 100;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+}
+
+/* ================= DUAL GRID SECTION ================= */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 25px;
+  margin-top: 15px;
+}
+
+.frame-box {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border: 1px solid black;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); 
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; 
+}
+
+.frame-box:nth-of-type(2) {
+  padding: 3px; 
+}
+
+.frame-box:first-of-type {
+  padding: 15px; 
+}
+
+.frame-box img, .frame-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain; 
+}
+
+.box-text {
+  margin-top: 10px;
+  font-weight: 900;
+  font-size: 15px;
+  text-align: center;
+  color: #000;
+  line-height: 1.2;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15); 
+}
+
+/* ================= TEXT & GAP SETTINGS ================= */
+.course-info {
+  font-weight: 700;
+  font-size: 17px;
+  margin: 25px 0 15px 0;
+  color: #323232; 
+  text-align: center;
+}
+
+/* ================= ASSIGNED MESS ================= */
+.assigned-mess {
+  font-weight: 900;
+  font-size: 16px;
+  margin: 10px 0 25px 0; 
+  text-align: center;
+  color: #323232; 
+}
+
+.datetime-row {
+  display: flex;
+  justify-content: flex-start; 
+  gap: 35px; 
+  font-weight: 900;
+  font-size: 20px;
+  margin-bottom: 30px;
+  padding-left: 25px; 
+}
+
+/* ================= BOTTOM UI ================= */
+.meal-approved {
+  font-weight: 900;
+  font-size: 26px;
+  color: #5EBF1A;
+  text-align: center;
+  margin-bottom: 0px; 
+  text-shadow: 0px 0px 2px #5EBF1A, 0px 0px 1px #5EBF1A, 0px 0px 2px #5EBF1A;
+}
+
+.rate-us {
+  display: inline-flex;
+  gap: 2px;             
+  align-items: center;
+  font-weight: 700;
+  border: 2px solid #a10404; 
+  border-radius: 4px;   
+  padding: 1px 4px;     
+  font-size: 14px;      
+  background: white;
+  cursor: pointer;
+  margin: 2px auto 8px auto; 
+}
+
+.rate-us .star {
+  color: gold;
+  font-size: 14px;      
+}
+
+.bottom-container {
+  width: calc(100% + 40px);
+  margin-left: -20px;
+  margin-right: -20px;
+  height: 380px;
+  border: 20px solid #7A8913;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bottom-container img { width: 100%; height: 100%; object-fit: cover; }
+
+.info-section {
+  width: calc(100% + 40px);
+  margin-left: -20px;
+  margin-right: -20px;
+}
+.info-box {
+  background: #ffffff;
+  padding: 14px 20px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.18);
+  margin-bottom: 12px;
+  text-align: left;
+}
+.label { font-weight: 900; font-size: 15px; color: #5a5a5a; margin: 8px 0 0 0; }
+.value { font-size: 15px; color: #4a4a4a; font-weight: 700; margin: 0 0 8px 0; }
+
+.verify-box {
+  width: 100%;
+  padding: 16px;
+  background: white;
+  border: 2.5px solid black;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 900;
+  font-size: 20px;
+  margin-top: 12px;
+}
+
+/* ==========================================
+   ⭐ STATE DRAG SLIDER OVERLAYS
+========================================== */
+#rateusSheet {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 80%;
+  background: #323232; z-index: 999999;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.35);
+  transform: translateY(100%);
+  overflow: hidden;
+}
+
+.slider-drag-handle {
+  width: 42px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 3px;
+  margin: 10px auto 8px;
+}
+
+.slider-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #323232;
+  color: #ffffff;
+  padding: 0 20px 12px;
+  font-family: Arial, sans-serif;
+}
+
+.slider-title {
+  font-weight: 900;
+  font-size: 16px;
+  margin: 0 auto 0 calc(50% - 45px); 
+}
+
+.slider-close-btn {
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#rateusFrame { 
+  width: 100%; 
+  height: calc(100% - 55px); 
+  border: none; 
+  display: block;
+  background: #ffffff;
+}
+</style>
+</head>
+
+<body>
+<div class="top-dark-tray"></div>
+<div class="top-bar"><div class="handle"></div>Mess Pass<div class="close" onclick="goBackToMess()">×</div></div>
+
+<div class="card">
+  <div id="timer">30</div>
+
+  <div class="grid-container">
+    <div>
+      <div class="frame-box"><img src="profile.png"></div>
+      <div class="box-text">12417814<br>Rishav Kumar</div>
+    </div>
+    
+    <div>
+      <div class="frame-box" id="qrcode"></div>
+      <div class="box-text"><span id="mealName"></span><br><span id="messName"></span></div>
+    </div>
+  </div>
+
+  <div class="course-info">P132:B.Tech. (Computer Science and Engineering) (2024)</div>
+
+  <div class="assigned-mess">Your Assigned Mess - <span id="assignedLabel"></span></div>
+
+  <div class="datetime-row">
+    <div id="current-date"></div>
+    <div id="current-time"></div>
+  </div>
+
+  <div class="meal-approved">Meal Approved</div>
+
+  <div style="text-align:center;">
+    <div class="rate-us" onclick="openRateUs()"><span class="star">★</span> RATE US</div>
+  </div>
+
+  <div class="bottom-container">
+    <img src="yourgif.gif" alt="GIF">
+  </div>
+
+  <div class="info-section">
+    <div class="info-box">
+      <p class="label">Father's Name</p><p class="value">Munna Singh (9631029570)</p>
+      <p class="label">Mother's Name</p><p class="value">Rekha Devi (+91-7903028900)</p>
+      <p class="label">Session</p><p class="value">P132:B.Tech. (Computer Science and Engineering) (2024)</p>
+      <p class="label">Hostel</p><p class="value">Boys Hostel-01 - A1025 - Bed D (Std AC 4 Seater)</p>
+    </div>
+    <div class="verify-box">
+      <span class="verify-label">Verification Code</span>
+      <span class="verify-value">14195494</span>
+    </div>
+  </div>
+</div>
+
+<div id="rateusSheet">
+  <div class="slider-drag-handle"></div>
+  <div class="slider-header-bar">
+    <div class="slider-title">Feedback</div>
+    <div class="slider-close-btn" onclick="closeRateUs()">×</div>
+  </div>
+  <iframe id="rateusFrame"></iframe>
+</div>
+
+<script>
+// --- REAL DESIGN QR LOGIC ---
+const realPayload = "MESS-" + Math.random().toString(36).toUpperCase().substring(2, 10) + "-" + Date.now();
+new QRCode(document.getElementById("qrcode"), {
+  text: realPayload,
+  width: 256,
+  height: 256,
+  colorDark : "#000000",
+  colorLight : "#ffffff",
+  correctLevel : QRCode.CorrectLevel.H 
+});
+
+const params = new URLSearchParams(window.location.search);
+const meal = params.get("meal") || "Meal";
+const color = params.get("color") || "#7A8913";
+const mess = params.get("mess") || "Mess BH-3";
+
+document.getElementById("mealName").textContent = meal;
+document.getElementById("messName").textContent = mess;
+document.getElementById("assignedLabel").textContent = mess;
+document.querySelector(".bottom-container").style.borderColor = color;
+
+let timeLeft = 30;
+function updateTimer() {
+  if (timeLeft >= 0) { 
+    document.getElementById("timer").textContent = timeLeft; 
+    timeLeft--; 
+  } else { 
+    /* FIXED: window.location.href ko badal kar location.replace kiya 
+       taaki browser history loop poori tarah khatam ho sake */
+    window.location.replace("mess.html"); 
+  }
+}
+setInterval(updateTimer, 1000);
+
+function updateClock() {
+  const now = new Date();
+  const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let hrs = now.getHours(), min = now.getMinutes();
+  const ampm = hrs >= 12 ? "PM" : "AM";
+  hrs = hrs % 12 || 12;
+  min = min < 10 ? "0" + min : min;
+  document.getElementById("current-date").textContent = `${m[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  document.getElementById("current-time").textContent = `${hrs}:${min} ${ampm}`;
+}
+updateClock();
+
+/* FIXED: Top bar close cross (×) par click karne par bhi direct replace execution pass ho sake */
+function goBackToMess() { window.location.replace("mess.html"); }
+
+/* ==========================================
+   RATE US SLIDER SYSTEM INTERFACE
+========================================== */
+const sheet = document.getElementById("rateusSheet");
+let isDragging = false;
+let startY = 0;
+let currentOffsetY = 0; 
+
+function openRateUs() {
+  const frame = document.getElementById("rateusFrame");
+  sheet.style.transition = "transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)";
+  frame.src = "rateus.html";
+  currentOffsetY = 0;
+  sheet.style.transform = "translateY(0px)";
+}
+
+function closeRateUs() {
+  sheet.style.transition = "transform 0.3s ease-in";
+  sheet.style.transform = "translateY(100%)";
+  currentOffsetY = 0;
+}
+
+sheet.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  sheet.style.transition = "none"; 
+  startY = e.touches[0].clientY;
+}, { passive: true });
+
+sheet.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+
+  const moveY = e.touches[0].clientY;
+  const deltaY = moveY - startY;
+  const targetedY = currentOffsetY + deltaY;
+  
+  if (targetedY > -20) { 
+    sheet.style.transform = `translateY(${targetedY}px)`;
+  }
+}, { passive: true });
+
+sheet.addEventListener("touchend", (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const style = window.getComputedStyle(sheet);
+  const matrix = new WebKitCSSMatrix(style.transform);
+  const finalDroppedY = matrix.m42; 
+
+  if (finalDroppedY > window.innerHeight * 0.35) {
+    closeRateUs();
+  } else {
+    sheet.style.transition = "transform 0.2s ease-out";
+    sheet.style.transform = `translateY(${finalDroppedY}px)`;
+    currentOffsetY = finalDroppedY; 
+  }
+});
+
+window.addEventListener("message", (event) => {
+  if (event.data === "close-slider") {
+    closeRateUs();
+  }
+});
+</script>
+</body>
+</html>
